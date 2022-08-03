@@ -1,7 +1,7 @@
 from pyo3_question import Client, Driver, EventA, EventB
 
 class MyClient(Client):
-    def handle_event(event):
+    def handle_event(self, event):
         match event:
             case EventA(field_a1=a1, field_a2=a2): print(f"got A(a1={a1}, a2={a2})")
             case EventB(field_b1=b1, field_b2=b2): print(f"got B(b1={b1}, b2={b2})")

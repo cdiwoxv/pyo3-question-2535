@@ -82,7 +82,6 @@ struct PyEventB {
 }
 
 #[pyclass(name = "Client", subclass)]
-#[derive(Clone)]
 struct PyClient {}
 
 #[pymethods]
@@ -97,12 +96,12 @@ impl PyClient {
     }
 }
 
-impl Client for PyClient {
+impl Client for Py<PyClient> {
     fn handle_event(&mut self, event: &Event) {
         Python::with_gil(|py| {
             let py_event = event.to_object(py);
             // TODO: error handling
-            self.handle_event(py_event.as_ref(py)).unwrap();
+            self.call_method1(py, "handle_event", (py_event.as_ref(py),)).unwrap();
         });
     }
 }
@@ -115,7 +114,7 @@ struct PyDriver {
 #[pymethods]
 impl PyDriver {
     #[new]
-    fn new(_py: Python<'_>, clients: Vec<PyClient>) -> PyResult<Self> {
+    fn new(_py: Python<'_>, clients: Vec<Py<PyClient>>) -> PyResult<Self> {
         let clients: Vec<_> = clients
             .into_iter()
             .map(|c| Box::new(c) as Box<dyn Client>)
